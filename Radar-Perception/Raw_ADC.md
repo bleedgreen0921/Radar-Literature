@@ -48,7 +48,7 @@
 
 ------
 
-## **《Echoes Beyond Points: Unleashing the Power of Raw**
+## **《Echoes Beyond Points: Unleashing the Power of Raw》**
 
 **Radar Data in Multi-modality Fusion》**
 
@@ -89,3 +89,119 @@
 
 ------
 
+## 《Azimuth Super-Resolution for FMCW Radar in Autonomous Driving》
+
+- 提出了一种名为ADC-SR的**方位超分辨率模型**，该模型考虑了复杂的ADC雷达信号，并预测了来自看不见的接收器的信号，能够产生更高分辨率的RAD图。
+
+
+- 提出了一种名为hybrid SR的混合模型，用于在与我们的ADC-SR结合时提高RAD-SR的性能。为了与所有基线模型进行比较，还提出了一种下采样方法进行评估。
+
+
+- 提出了一个名为Pitt radar的MIMO雷达数据集，其中包含用于基准测试的ADC信号。
+
+
+- 模型不仅在我们收集的Pitt雷达和一个基准数据集上实现了令人满意的方位超分辨率，而且大大改进了现有的目标检测器。
+
+
+
+------
+
+## 《T-FFTRadNet: Object Detection with Swin Vision Transformers from Raw ADC Radar Signals》
+
+1. 研究背景与核心问题
+
+   传统方法缺陷：
+
+   1. **点云（Point Cloud）**：雷达点云稀疏，信息提取效率低。
+   2. **RAD立方体（Range-Azimuth-Doppler Cube）**：需多次FFT预处理，计算成本高。
+   3. **输入标准化**：RD/RAD输入需通道归一化，增加预处理负担。
+
+   核心问题：
+
+   如何**直接处理原始ADC信号**，避免FFT预处理，同时兼容不同雷达配置（HD/LD）和输入类型（ADC/RD/RAD）？
+
+2. 核心创新：T-FFTRadNet
+
+   整体架构如下图
+
+![image-20250605103131122](C:\Users\adminqiu\AppData\Roaming\Typora\typora-user-images\image-20250605103131122.png)
+
+**1️⃣ 原始输入：ADC Matrices（Rx × Chirps）**
+
+- 原始接收通道（Rx）与 chirps 构成的三维张量。
+- 表示雷达接收到的原始 IQ 数据。
+
+------
+
+**2️⃣ Fourier-Net（可学习的傅里叶变换层，用于时频变换）**
+
+这是一个将 ADC 信号映射到 Range-Angle (RA) 特征域的网络模块。替代传统FFT，直接处理原始ADC信号。
+
+数学原理：
+
+- 初始化权重为DFT矩阵：` w(k,m)=exp(−j2π/N*​km)`
+- 通过端到端训练优化权重，学习**传感器特定特征**。
+
+**输入：**
+
+- 原始 ADC matrix。
+
+**处理步骤：**
+
+- `C`：1×1 Conv
+- `P`：Permute 维度（通道交换 Rx 和 chirp 维度）
+- `CPLX`：复数线性变换（对 IQ 分量做频域变换）
+- `IN-2D`：InstanceNorm2D 对幅度谱进行归一化
+- 输出为：**RA 特征图**（Range × Angle）
+
+------
+
+**3️⃣ Swin Transformer Backbone**
+
+对 RA 特征图提取层次化特征（借助 **Swin-T 架构**）。
+
+**操作流程：**
+
+- `Patch Partition`：将输入图像分割成非重叠窗口（如 2*2）
+- `Linear Embedding`：将每个 patch 投影为固定维度的向量
+- **四个 Stage**（Layer 数量为 [2, 2, 6, 2]）：
+  - 每个 Stage 内有多个 Swin Transformer Block（如 W-MSA + SW-MSA）
+  - `Patch Merging` 降维（H,W 降为 1/2，通道 ×2）
+  - 最终输出多层特征：用于 Detection 和 Segmentation 分支
+
+------
+
+**4️⃣ 两大特征分支：**
+
+**🔹 Segmentation Head：**
+
+- 输入：RA Features（来自 Fourier-Net 或浅层 Swin）
+- 操作：
+  - BI（Bilinear Interpolation）
+  - BB（3×3 Conv/BN/ReLU）
+  - C（1×1 Conv）
+- 输出：每个点的语义标签（如人体、背景）
+
+**🔹 Detection Head：**
+
+- 输入：RA Features（可来自 Swin 深层）
+- 操作：
+  - CB：3×3 Conv + BN
+  - C：1×1 Conv
+  - 输出：
+    - 2D Bounding Box (回归)
+    - 类别分类
+    - 存在性检测（是否有人）
+
+------
+
+**5️⃣ Range-Angle Decoder：**
+
+用于进一步从高维 Swin 特征中恢复空间信息。
+
+- 接收高维 Swin Features
+- 采用：
+  - `S`：通道交换
+  - `C`：1×1 Conv
+  - `BB`：Conv/BN/ReLU
+- 最终送入 Detection Head 与 Segmentation Head 分别回归位置信息与语义。
