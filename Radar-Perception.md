@@ -354,7 +354,7 @@
 
 ### **复数卷积神经网络（CVCNN）**
 
-![img](https://hunyuan-plugin-private-1258344706.cos.ap-nanjing.myqcloud.com/pdf_youtu/img/70594b5f282ffc64475add1e8b94b404-image.png?q-sign-algorithm=sha1&q-ak=AKID372nLgqocp7HZjfQzNcyGOMTN3Xp6FEA&q-sign-time=1749634130%3B2064994130&q-key-time=1749634130%3B2064994130&q-header-list=host&q-url-param-list=&q-signature=46d424d0bdcf3f4df2f2ca1f56a38beaf4f33302)
+<img src="C:\Users\adminqiu\AppData\Roaming\Typora\typora-user-images\image-20250615171931241.png" alt="image-20250615171931241"  />
 
 - **复数卷积**：将复数运算分解为实部-虚部的四元操作
 
