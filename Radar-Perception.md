@@ -354,7 +354,7 @@
 
 ### **复数卷积神经网络（CVCNN）**
 
-<img src="C:\Users\adminqiu\AppData\Roaming\Typora\typora-user-images\image-20250615171931241.png" alt="image-20250615171931241"  />
+<img src="C:\Users\adminqiu\AppData\Roaming\Typora\typora-user-images\image.png" alt="image"  />
 
 - **复数卷积**：将复数运算分解为实部-虚部的四元操作
 
