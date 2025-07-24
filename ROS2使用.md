@@ -399,3 +399,12 @@
    ros2 run my_py_pkg minimal_node
    ```
 
+------
+
+## ROS2基础之Linux命令
+
+pwd 查看终端当前目录；cd / 从当前进入根目录；ls 查看当前目录下的文件；mkdir your_profile 在主目录下创建文件夹；
+
+cd your_profile 从主目录进入文件夹；touch 1.txt 创建空白文件；nano 1.txt 使用nano编辑文本；cat 1.txt 使用cat查看文件内容；
+
+ros2 run —help 查看命令使用帮助；rm —help 查看删除命令使用帮助
